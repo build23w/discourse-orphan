@@ -1,6 +1,6 @@
 # name: discourse-orphan
-# about: Orphan post fix
-# version: 0.4
+# about: Orphan post fix + listing-page noindex
+# version: 0.5
 # authors: build23w
 
 after_initialize do
@@ -37,17 +37,29 @@ after_initialize do
     end
   end
 
-  register_html_builder("server:before-head-close") do |controller|
-    path = controller&.request&.path.to_s
-    next if path.empty?
+  %w[server:before-head-close server:before-head-close-crawler].each do |hook|
+    register_html_builder(hook) do |controller|
+      path = controller&.request&.path.to_s
+      next if path.empty?
 
-    is_category_or_tag_page = path.match?(%r{\A/(c|tag|tags)(/|$)})
-    next unless is_category_or_tag_page
+      is_listing = path.match?(%r{\A/(c|tag|tags)(/|$)})
+      next unless is_listing
 
-    <<~HTML
-      <meta name="googlebot" content="noindex, follow">
-      <meta name="robots" content="noindex, follow">
-    HTML
+      <<~HTML
+        <meta name="googlebot" content="noindex, follow">
+        <meta name="robots" content="noindex, follow">
+      HTML
+    end
+  end
+
+  ::ApplicationController.class_eval do
+    before_action :hrr_set_listing_robots_header
+
+    def hrr_set_listing_robots_header
+      return unless request.get?
+      if request.path =~ %r{\A/(c|tag|tags)(/|$)}
+        response.set_header('X-Robots-Tag', 'noindex, follow')
+      end
+    end
   end
 end
-

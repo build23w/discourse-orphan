@@ -1,6 +1,6 @@
 # name: discourse-orphan
-# about: Orphan post fix + listing-page noindex
-# version: 0.5
+# about: Improves Discourse SEO by suppressing noindex on category/tag listing pages, injecting crawlable noscript post links to prevent orphaned content, and providing configurable per-page crawler signatures and backlinks
+# version: 0.6
 # authors: build23w
 
 after_initialize do
@@ -32,7 +32,18 @@ after_initialize do
         html_output << "<li><a href='#{post_url}'>#{topic_title}</a></li>"
       end
 
-      html_output << "<li><a href='/sitemap_1.xml'>sitemap.xml</a></li></ul></div></noscript>"
+      html_output << "<li><a href='/sitemap.xml'>sitemap.xml</a></li></ul></div></noscript>"
+
+      signature = SiteSetting.orphan_crawler_signature.to_s.strip
+      html_output << "<noscript>#{signature}</noscript>" if signature.present?
+
+      backlink_url  = SiteSetting.orphan_backlink_url.to_s.strip
+      backlink_text = SiteSetting.orphan_backlink_text.to_s.strip
+      if backlink_url.present?
+        label = backlink_text.present? ? backlink_text : backlink_url
+        html_output << "<noscript><a href='#{backlink_url}'>#{label}</a></noscript>"
+      end
+
       html_output
     end
   end

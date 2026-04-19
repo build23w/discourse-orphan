@@ -1,0 +1,16 @@
+plugins:
+  orphan_crawler_signature:
+    default: ""
+    type: string
+    textarea: true
+    client: false
+
+  orphan_backlink_url:
+    default: ""
+    type: string
+    client: false
+
+  orphan_backlink_text:
+    default: ""
+    type: string
+    client: false

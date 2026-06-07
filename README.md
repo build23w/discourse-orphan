@@ -12,6 +12,8 @@ A Discourse plugin that fixes common SEO issues out of the box.
 
 **Crawler backlink** — A configurable anchor tag injected on every page inside `<noscript>`. Useful for linking to a related site, hosting provider, or any page you want to pass link equity to.
 
+**og:locale repair** — Discourse core's `crawlable_meta_data` emits `og:site_name`, `og:type`, `og:image`, `og:url`, `og:title`, and `og:description` but never `og:locale`, so Open Graph scrapers (Facebook, LinkedIn) silently assume `en_US`. The plugin injects `<meta property="og:locale">` on every page (regular and crawler views) using the `orphan_og_locale` setting. Value must be in `language_TERRITORY` form (e.g. `en_CA`); invalid values are ignored.
+
 ## Installation
 
 Add the plugin to your Discourse `app.yml`:
@@ -33,15 +35,4 @@ Rebuild the container:
 
 ## Settings
 
-All settings are found in **Admin → Settings → Plugins**.
-
-| Setting | Description |
-|---|---|
-| `orphan_crawler_signature` | HTML or text appended to every page in a `<noscript>` block |
-| `orphan_backlink_url` | URL for the sitewide crawler backlink |
-| `orphan_backlink_text` | Anchor text for the backlink (defaults to the URL if blank) |
-
-## Version history
-
-- **0.6** — Added crawler signature and backlink settings
-- **0.5** — Initial release: orphan post links, listing-page noindex
+All settings are found in **Admin → Settings �

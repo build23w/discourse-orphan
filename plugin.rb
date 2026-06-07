@@ -1,6 +1,6 @@
 # name: discourse-orphan
-# about: Improves Discourse SEO by suppressing noindex on category/tag listing pages, injecting crawlable noscript post links to prevent orphaned content, and providing configurable per-page crawler signatures and backlinks
-# version: 0.6
+# about: Improves Discourse SEO by suppressing noindex on category/tag listing pages, injecting crawlable noscript post links to prevent orphaned content, emitting the og:locale meta tag core omits, and providing configurable per-page crawler signatures and backlinks
+# version: 0.7
 # authors: build23w
 
 after_initialize do
@@ -53,13 +53,23 @@ after_initialize do
       path = controller&.request&.path.to_s
       next if path.empty?
 
-      is_listing = path.match?(%r{\A/(c|tag|tags)(/|$)})
-      next unless is_listing
+      parts = []
 
-      <<~HTML
-        <meta name="googlebot" content="noindex, follow">
-        <meta name="robots" content="noindex, follow">
-      HTML
+      # Discourse core's crawlable_meta_data never emits og:locale, so
+      # scrapers (Facebook/LinkedIn) silently assume en_US. Declare ours.
+      og_locale = SiteSetting.orphan_og_locale.to_s.strip
+      if og_locale.match?(/\A[a-z]{2,3}_[A-Z]{2}\z/)
+        parts << %(<meta property="og:locale" content="#{og_locale}">)
+      end
+
+      if path.match?(%r{\A/(c|tag|tags)(/|$)})
+        parts << '<meta name="googlebot" content="noindex, follow">'
+        parts << '<meta name="robots" content="noindex, follow">'
+      end
+
+      next if parts.empty?
+
+      parts.join("\n")
     end
   end
 

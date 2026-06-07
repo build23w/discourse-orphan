@@ -14,3 +14,8 @@ plugins:
     default: ""
     type: string
     client: false
+
+  orphan_og_locale:
+    default: "en_CA"
+    type: string
+    client: false

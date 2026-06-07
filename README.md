@@ -35,4 +35,17 @@ Rebuild the container:
 
 ## Settings
 
-All settings are found in **Admin → Settings �
+All settings are found in **Admin → Settings → Plugins**.
+
+| Setting | Description |
+|---|---|
+| `orphan_crawler_signature` | HTML or text appended to every page in a `<noscript>` block |
+| `orphan_backlink_url` | URL for the sitewide crawler backlink |
+| `orphan_backlink_text` | Anchor text for the backlink (defaults to the URL if blank) |
+| `orphan_og_locale` | Open Graph locale emitted on every page (default `en_CA`; blank/invalid disables) |
+
+## Version history
+
+- **0.7** — Added og:locale injection (core omits it; scrapers were defaulting to en_US)
+- **0.6** — Added crawler signature and backlink settings
+- **0.5** — Initial release: orphan post links, listing-page noindex

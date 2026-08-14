@@ -1,6 +1,6 @@
 # name: discourse-orphan
-# about: SEO for a large, geo-structured forum — indexes category hubs that have real content while noindexing thin ones, noindexes paginated /latest duplicates and tag listings, rescues least-recently-bumped topics with crawler-visible links, and emits the og:locale meta core omits
-# version: 0.8
+# about: SEO for a large, geo-structured forum — indexes category hubs that have real content while noindexing thin ones, noindexes paginated /latest duplicates and tag listings, and emits the og:locale meta core omits
+# version: 0.8.1
 # authors: build23w
 
 after_initialize do
@@ -37,33 +37,6 @@ after_initialize do
     def self.paginated_listing?(request)
       request.path == "/latest" && request.params[:page].present?
     end
-  end
-
-  # Orphan rescue: crawler view only. The old version injected 30 ORDER BY
-  # RANDOM() links into a <noscript> block on the HUMAN app shell — which Google
-  # never fetches (it gets the crawler view) — so it taxed every page load while
-  # rescuing nothing. Least-recently-bumped topics are the actual orphans, and
-  # that ordering rides the bumped_at index.
-  register_html_builder("server:before-body-close-crawler") do |_attrs|
-    topics = Discourse.cache.fetch("orphan-rescue-links", expires_in: 30.minutes) do
-      Topic
-        .visible
-        .where(archetype: Archetype.default)
-        .order(bumped_at: :asc)
-        .limit(30)
-        .pluck(:slug, :id, :title)
-    end
-
-    next "" if topics.blank?
-
-    links = topics.map do |slug, id, title|
-      "<li><a href='#{Discourse.base_url}/t/#{slug}/#{id}'>#{CGI.escapeHTML(title)}</a></li>"
-    end
-
-    signature = SiteSetting.orphan_crawler_signature.to_s.strip
-    sig_html = signature.present? ? "<div>#{signature}</div>" : ""
-
-    "<div class='crawler-orphan-rescue'><h4>Deep archive</h4><ul>#{links.join}</ul>#{sig_html}</div>"
   end
 
   %w[server:before-head-close server:before-head-close-crawler].each do |hook|

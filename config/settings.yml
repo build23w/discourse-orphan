@@ -5,17 +5,13 @@ plugins:
     textarea: true
     client: false
 
-  orphan_backlink_url:
-    default: ""
-    type: string
-    client: false
-
-  orphan_backlink_text:
-    default: ""
-    type: string
-    client: false
-
   orphan_og_locale:
     default: "en_CA"
     type: string
+    client: false
+
+  orphan_index_min_topics:
+    default: 5
+    type: integer
+    min: 0
     client: false
